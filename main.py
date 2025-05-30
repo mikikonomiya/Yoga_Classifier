@@ -132,6 +132,61 @@ while cam.isOpened():
         
         prediction=model.predict([angles])
         print(prediction[0])
+
+                # Select the ideal angles based on prediction
+        if prediction[0] == "HalfMoon":
+            ideal = ideal_angles_HalfMoon
+        elif prediction[0] == "Butterfly":
+            ideal = ideal_angles_Butterfly
+        elif prediction[0] == "Downward_Dog":
+            ideal = ideal_angles_Downward_Dog
+        elif prediction[0] == "Dancer":
+            ideal = ideal_angles_Dancer
+        elif prediction[0] == "Triangle":
+            ideal = ideal_angles_Triangle
+        elif prediction[0] == "Goddess":
+            ideal = ideal_angles_Goddess
+        elif prediction[0] == "Warrior":
+            ideal = ideal_angles_Warrior
+        elif prediction[0] == "Tree":
+            ideal = ideal_angles_Tree
+        else:
+            ideal = ideal_angles_HalfMoon  # fallback default
+
+        # Generate feedback list (emojis)
+        feedback_list = compare_angles(angles, ideal, thresholds_good, thresholds_warn)
+
+        # Joints used for feedback display (order matches angle list)
+        joint_names = [
+            mp_pose.PoseLandmark.LEFT_ELBOW,
+            mp_pose.PoseLandmark.RIGHT_ELBOW,
+            mp_pose.PoseLandmark.LEFT_SHOULDER,
+            mp_pose.PoseLandmark.RIGHT_SHOULDER,
+            mp_pose.PoseLandmark.LEFT_KNEE,
+            mp_pose.PoseLandmark.RIGHT_KNEE,
+            mp_pose.PoseLandmark.RIGHT_ANKLE,
+            mp_pose.PoseLandmark.LEFT_ANKLE,
+            mp_pose.PoseLandmark.RIGHT_ELBOW,  # For hand_angle
+            mp_pose.PoseLandmark.LEFT_HIP,
+            mp_pose.PoseLandmark.RIGHT_HIP,
+            mp_pose.PoseLandmark.NOSE,
+            mp_pose.PoseLandmark.LEFT_WRIST,
+            mp_pose.PoseLandmark.RIGHT_WRIST
+        ]
+
+        # Draw emojis on corresponding joints
+        for i, joint in enumerate(joint_names):
+            x = int(coords[joint.value].x * w)
+            y = int(coords[joint.value].y * h)
+            cv2.putText(img_copy, feedback_list[i], (x, y), cv2.FONT_HERSHEY_SIMPLEX, 1.0, (0, 255, 0), 2)
+
+        # Overall score
+        score = feedback_list.count("✅") / len(feedback_list) * 100
+
+        # Show pose name and score
+        cv2.putText(img_copy, f"Pose: {prediction[0]}", (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 1.0, (255, 255, 255), 2)
+        cv2.putText(img_copy, f"Score: {score:.1f}%", (10, 70), cv2.FONT_HERSHEY_SIMPLEX, 1.0, (255, 255, 0), 2)
+
     
     cv2.imshow('Camera', img_copy)
 
