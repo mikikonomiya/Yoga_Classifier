@@ -83,8 +83,6 @@ thresholds_good = [10, 10, 15, 15, 10, 10, 20, 20, 15, 15, 15, 10, 20, 20]
 thresholds_warn = [20, 20, 25, 25, 20, 20, 30, 30, 25, 25, 25, 20, 30, 30]
 ''' ADAPT VALUES '''
 
-user_angles = angles_finder(landmarks) 
-
 
 def compare_angles(user_angles, ideal_angles, threshold_good, threshold_warn):
     feedback_list = []
@@ -134,25 +132,8 @@ while cam.isOpened():
         print(prediction[0])
 
                 # Select the ideal angles based on prediction
-        if prediction[0] == "HalfMoon":
-            ideal = ideal_angles_HalfMoon
-        elif prediction[0] == "Butterfly":
-            ideal = ideal_angles_Butterfly
-        elif prediction[0] == "Downward_Dog":
-            ideal = ideal_angles_Downward_Dog
-        elif prediction[0] == "Dancer":
-            ideal = ideal_angles_Dancer
-        elif prediction[0] == "Triangle":
-            ideal = ideal_angles_Triangle
-        elif prediction[0] == "Goddess":
-            ideal = ideal_angles_Goddess
-        elif prediction[0] == "Warrior":
-            ideal = ideal_angles_Warrior
-        elif prediction[0] == "Tree":
-            ideal = ideal_angles_Tree
-        else:
-            ideal = ideal_angles_HalfMoon  # fallback default
-
+        ideal = ideal_angles[prediction[0]]
+        
         # Generate feedback list (emojis)
         feedback_list = compare_angles(angles, ideal, thresholds_good, thresholds_warn)
 
@@ -199,4 +180,6 @@ while cam.isOpened():
 cam.release()
 
 cv2.destroyAllWindows()
+
+
 
