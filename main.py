@@ -81,15 +81,15 @@ ideal_angles = {"HalfMoon": [171.59, 189.31, 98.08, 94.66, 179.63, 183.02, 253.0
 
 thresholds_good = [10, 10, 15, 15, 10, 10, 20, 20, 15, 15, 15, 10, 20, 20] 
 thresholds_warn = [20, 20, 25, 25, 20, 20, 30, 30, 25, 25, 25, 20, 30, 30]
-# ADAPT VALUES 
+# ADAPT VALUES, or make a dictionary (each entry, a pose)
 
 
-def compare_angles(user_angles, ideal_angles, threshold_good, threshold_warn):
+def compare_angles(user_angles, ideal_list, threshold_good, threshold_warn):
     feedback_list = []
 
     length = len(user_angles)
     for i in range(length):
-        error = abs(user_angles[i] - ideal_angles[i])
+        error = abs(user_angles[i] - ideal_list[i])
 
         if error <= threshold_good[i]:
             feedback = "✅"
@@ -131,39 +131,35 @@ while cam.isOpened():
         prediction=model.predict([angles])
         print(prediction[0])
 
-        ideal = ideal_angles[prediction[0]]
-        feedback_list = compare_angles(angles, ideal, thresholds_good, thresholds_warn)
+        ideal_list = ideal_angles[prediction[0]]
+        feedback_list = compare_angles(angles, ideal_list, thresholds_good, thresholds_warn)
 
-        # Joints used for feedback display (order matches angle list)
-        joint_names = [
+        joints = [
             mp_pose.PoseLandmark.LEFT_ELBOW,
             mp_pose.PoseLandmark.RIGHT_ELBOW,
             mp_pose.PoseLandmark.LEFT_SHOULDER,
             mp_pose.PoseLandmark.RIGHT_SHOULDER,
             mp_pose.PoseLandmark.LEFT_KNEE,
             mp_pose.PoseLandmark.RIGHT_KNEE,
-            mp_pose.PoseLandmark.RIGHT_ANKLE,
-            mp_pose.PoseLandmark.LEFT_ANKLE,
-            mp_pose.PoseLandmark.RIGHT_ELBOW,  # For hand_angle
+            mp_pose.PoseLandmark.RIGHT_ANKLE, # not ankle!
+            mp_pose.PoseLandmark.LEFT_ANKLE,  # not ankle!
+            mp_pose.PoseLandmark.RIGHT_ELBOW,  
             mp_pose.PoseLandmark.LEFT_HIP,
             mp_pose.PoseLandmark.RIGHT_HIP,
             mp_pose.PoseLandmark.NOSE,
             mp_pose.PoseLandmark.LEFT_WRIST,
             mp_pose.PoseLandmark.RIGHT_WRIST
         ]
-
-        # Draw emojis on corresponding joints
-        for i, joint in enumerate(joint_names):
+        
+        for i, joint in enumerate(joints):
             x = int(coords[joint.value].x * w)
             y = int(coords[joint.value].y * h)
             cv2.putText(img_copy, feedback_list[i], (x, y), cv2.FONT_HERSHEY_SIMPLEX, 1.0, (0, 255, 0), 2)
+            
+        overall_score = feedback_list.count("✅") / len(feedback_list) * 100
 
-        # Overall score
-        score = feedback_list.count("✅") / len(feedback_list) * 100
-
-        # Show pose name and score
         cv2.putText(img_copy, f"Pose: {prediction[0]}", (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 1.0, (255, 255, 255), 2)
-        cv2.putText(img_copy, f"Score: {score:.1f}%", (10, 70), cv2.FONT_HERSHEY_SIMPLEX, 1.0, (255, 255, 0), 2)
+        cv2.putText(img_copy, f"Score: {overall_score:.1f}%", (10, 70), cv2.FONT_HERSHEY_SIMPLEX, 1.0, (255, 255, 0), 2)
 
     
     cv2.imshow('Camera', img_copy)
