@@ -1,3 +1,19 @@
+import cv2
+import mediapipe as mp
+import joblib
+import math 
+import pandas as pd
+
+def calculateAngle(p1, p2, p3):
+    (x1, y1, z1 )= p1
+    (x2, y2, z2) = p2
+    (x3, y3, z3) = p3
+
+    angle = math.degrees(math.atan2(y3 - y2, x3 - x2) - math.atan2(y1 - y2, x1 - x2))
+    if angle < 0:
+        angle += 360
+    return angle
+
 def angles_finder(landmarks):
     left_elbow_angle = calculateAngle(landmarks[mp_pose.PoseLandmark.LEFT_SHOULDER.value],
                                       landmarks[mp_pose.PoseLandmark.LEFT_ELBOW.value],
@@ -39,16 +55,23 @@ def angles_finder(landmarks):
     right_wrist_angle_bk = calculateAngle(landmarks[mp_pose.PoseLandmark.RIGHT_WRIST.value],
                                           landmarks[mp_pose.PoseLandmark.RIGHT_HIP.value],
                                           landmarks[mp_pose.PoseLandmark.RIGHT_ANKLE.value])
-    return [left_elbow_angle, right_elbow_angle, left_shoulder_angle, right_shoulder_angle,
+    
+    angles_list = [left_elbow_angle, right_elbow_angle, left_shoulder_angle, right_shoulder_angle,
             left_knee_angle, right_knee_angle, angle_for_half_moon1, angle_for_half_moon2,
              left_hip_angle, right_hip_angle, neck_angle_uk, left_wrist_angle_bk, right_wrist_angle_bk]
 
+    columns = ["left_elbow_angle","right_elbow_angle","left_shoulder_angle","right_shoulder_angle",
+           "left_knee_angle","right_knee_angle","angle_for_half_moon1","angle_for_half_moon2",
+           "left_hip_angle","right_hip_angle","neck_angle_uk","left_wrist_angle_bk","right_wrist_angle_bk"]
+
+    angles_dataframe = pd.DataFrame([angles_list], columns=columns)
+    return angles_dataframe
  #--------------------------------same as dataset creator functions---------------------------------------#
 
 
-ideal_angles = {"HalfMoon": [171.59, 189.31, 98.08, 94.66, 179.63, 183.02, 253.06, 106.74,  121.65, 238.57, 309.07, 83.05, 280.71],
+ideal_angles = {"Half_Moon": [171.59, 189.31, 98.08, 94.66, 179.63, 183.02, 253.06, 106.74,  121.65, 238.57, 309.07, 83.05, 280.71],
                 "Butterfly": [194.87, 165.46, 32.57, 32.31, 343.11, 17.54, 304.72, 52.07,  74.14, 283.82, 305.93, 191.05, 115.79],
-                "Downward_Dog": [168.99, 166.94, 174.86, 187.43, 178.0, 178.97, 310.85, 49.03,  81.51, 80.85, 206.01, 80.67, 79.9],
+                "Downward_dog": [168.99, 166.94, 174.86, 187.43, 178.0, 178.97, 310.85, 49.03,  81.51, 80.85, 206.01, 80.67, 79.9],
                 "Dancer": [173.19, 182.48, 127.04, 109.22, 146.81, 237.03, 202.31, 156.94,  128.35, 238.7, 281.3, 98.15, 298.18],
                 "Triangle": [169.49, 187.7, 87.46, 114.49, 178.95, 176.47, 283.95, 85.0,  54.19, 146.7, 326.85, 94.41, 174.23],
                 "Goddess": [166.89, 192.5, 91.66, 86.3, 242.31, 116.53, 261.62, 98.53,  111.47, 249.03, 295.76, 131.99, 229.02],
@@ -107,15 +130,16 @@ while cam.isOpened():
         
         standard_coords = [((w*els.x) , (h*els.y), (d* els.z)) for els in coords] #only x,y,z and real coordinates
         
-        angles= angles_finder(standard_coords)
+        angles= angles_finder(standard_coords) #angles is dataframe to predict 
 
         #the model prediction
-        prediction=model.predict([angles])
+        prediction=model.predict(angles)
         print(prediction[0])
     
         #feedback down here
         ideal = ideal_angles[prediction[0]]
-        feedback_list = compare_angles(angles, ideal, thresholds_good, thresholds_warn)
+
+        feedback_list = compare_angles(list(angles.iloc[0]), ideal, thresholds_good, thresholds_warn) #angles should be list
         print(feedback_list)
 
 
@@ -125,7 +149,8 @@ while cam.isOpened():
 
 
     
-    
+   
+
 
 
 
