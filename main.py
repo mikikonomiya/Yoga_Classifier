@@ -81,7 +81,7 @@ ideal_angles = {"HalfMoon": [171.59, 189.31, 98.08, 94.66, 179.63, 183.02, 253.0
 
 thresholds_good = [10, 10, 15, 15, 10, 10, 20, 20, 15, 15, 15, 10, 20, 20] 
 thresholds_warn = [20, 20, 25, 25, 20, 20, 30, 30, 25, 25, 25, 20, 30, 30]
-''' ADAPT VALUES '''
+# ADAPT VALUES 
 
 
 def compare_angles(user_angles, ideal_angles, threshold_good, threshold_warn):
@@ -131,10 +131,7 @@ while cam.isOpened():
         prediction=model.predict([angles])
         print(prediction[0])
 
-                # Select the ideal angles based on prediction
         ideal = ideal_angles[prediction[0]]
-        
-        # Generate feedback list (emojis)
         feedback_list = compare_angles(angles, ideal, thresholds_good, thresholds_warn)
 
         # Joints used for feedback display (order matches angle list)
