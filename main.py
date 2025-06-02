@@ -86,7 +86,7 @@ ideal_angles = {'Butterfly': [180, 180, 10, 5, 342, 18, 305, 55, 77, 283, 306, 0
                 'Warrior_left': [180, 178, 100, 104, 177, 109, 257, 108, 128, 261, 321, 86, 259],
                 'Warrior_right': [179, 180, 109, 100, 247, 185, 255, 102, 103, 227, 276, 102, 269]}
 
-thresholds_good = {'Butterfly':  [15, 15, 10, 10, 10, 10, 30, 30,  15, 15, 70, 360, 360],
+thresholds_good = {'Butterfly':  [30, 30, 10, 10, 10, 10, 30, 30,  15, 15, 70, 360, 360],
                 'Dancer_left':  [20, 20, 15, 15, 10, 10, 20, 20,  15, 15, 100, 20, 20],
                 'Dancer_right':  [20, 20, 15, 15, 10, 10, 20, 20,  15, 15, 30, 20, 20],
                 'Downward_dog':  [15, 15, 20, 20, 15, 15, 20, 20,  15, 15, 340, 20, 20],
@@ -99,7 +99,7 @@ thresholds_good = {'Butterfly':  [15, 15, 10, 10, 10, 10, 30, 30,  15, 15, 70, 3
                 'Warrior_left':  [10, 10, 15, 15, 10, 10, 20, 20,  15, 15, 10, 20, 20],
                 'Warrior_right':  [10, 10, 15, 15, 10, 10, 20, 20,  15, 15, 10, 20, 20]} 
 
-thresholds_warn = {'Butterfly': [25, 25, 20, 20, 20, 20, 40, 40, 25, 25, 80, 370, 370],
+thresholds_warn = {'Butterfly': [35, 35, 20, 20, 20, 20, 40, 40, 25, 25, 80, 370, 370],
                 'Dancer_left': [30, 30, 25, 25, 20, 20, 30, 30, 25, 25, 110, 30, 30],
                 'Dancer_right': [30, 30, 25, 25, 20, 20, 30, 30, 25, 25, 40, 30, 30],
                 'Downward_dog': [25, 25, 30, 30, 25, 25, 30, 30, 25, 25, 350, 30, 30],
@@ -118,7 +118,8 @@ def compare_angles(user_angles, ideal_angles, threshold_good, threshold_warn):
     length = len(user_angles)
     for i in range(length):
         error = abs(user_angles[i] - ideal_angles[i])
-       
+        if error >180:
+            error= 360- error
         if error <= threshold_good[i]:
             feedback = "✅"
         elif error <= threshold_warn[i]:
@@ -161,6 +162,28 @@ def overlay_emoji(frame, emoji_img, x, y, size=24):
 
     for c in range(3):
         roi[:, :, c] = (alpha * bgr[:, :, c] + (1 - alpha) * roi[:, :, c])
+
+def score_calculation(feedback_list, pose):
+    # elbow x2, shoulder x2, knee x2, halfmoon x2, hip x2, neck, wrist x2
+    weights = {'Butterfly': [4, 4, 10, 10, 8, 8, 4, 4, 9, 9, 4, 4, 4], # importance (%) of each joint in the overall score 
+                'Dancer_left': [10, 10, 10, 10, 10, 10, 4, 4, 10, 10, 4, 4, 4],
+                'Dancer_right': [10, 10, 10, 10, 10, 10, 4, 4, 10, 10, 4, 4, 4],
+                'Downward_dog': [12, 12, 7, 7, 12, 12, 3, 3, 8, 8, 6, 5, 5],
+                'Goddess': [9, 9, 8, 8, 15, 15, 3, 3, 10, 10, 6, 2, 2],
+                'Half_Moon_left': [9, 9, 8, 8, 9, 9, 8, 8, 8, 8, 6, 5, 5],
+                'Half_Moon_right': [9, 9, 8, 8, 9, 9, 8, 8, 8, 8, 6, 5, 5],
+                'Tree_left': [10, 10, 10, 10, 10, 10, 4, 4, 10, 10, 4, 4, 4],
+                'Tree_right': [10, 10, 10, 10, 10, 10, 4, 4, 10, 10, 4, 4, 4],
+                'Triangle': [10, 10, 10, 10, 10, 10, 3, 3, 10, 10, 4, 5, 5],
+                'Warrior_left': [10, 10, 10, 10, 10, 10, 4, 4, 10, 10, 4, 4, 4],
+                'Warrior_right': [10, 10, 10, 10, 10, 10, 4, 4, 10, 10, 4, 4, 4]}
+
+    feedback_values = {"✅": 1.0, "⚠️": 0.3, "❌": 0.0}
+
+    overall_score = 0
+    for i, feedback in enumerate(feedback_list):
+        overall_score += feedback_values[feedback] * weights[pose][i]
+    return overall_score
     
 check_img = load_emoji("/Users/simaypay/Desktop/Yoga_Classifier-main/feedback_images/check.png", size=(24,24)) # Load all 3 emojis
 warn_img = load_emoji("/Users/simaypay/Desktop/Yoga_Classifier-main/feedback_images/cross.png", size=(24,24))
@@ -255,7 +278,7 @@ while cam.isOpened():
                 elif feedback == "❌":
                     overlay_emoji(img_copy, cross_img, x, y)
                 
-            overall_score = (last_feedback_list.count("✅") + (last_feedback_list.count("⚠️"))/3) / len(last_feedback_list) * 100
+           overall_score = score_calculation(last_feedback_list, last_prediction[0])
     
             cv2.putText(img_copy, f"Pose: {last_prediction[0]}", (10, 40), cv2.FONT_HERSHEY_DUPLEX, 1.2, (0, 0, 0), 2)
             cv2.putText(img_copy, f"Score: {overall_score:.1f}%", (10, 80), cv2.FONT_HERSHEY_DUPLEX, 1, (0, 0, 0), 2)
@@ -273,4 +296,3 @@ while cam.isOpened():
 cam.release()
 pose.close()
 cv2.destroyAllWindows()
-
