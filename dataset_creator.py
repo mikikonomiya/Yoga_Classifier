@@ -76,7 +76,7 @@ def detect_pose(image, pose):
     return None
 
 # Folder containing images
-path = os.path.join(current_dir,"TRAIN")
+path = os.path.join(current_dir,"TRAIN_FULL")
 
 columns = ["Label","left_elbow_angle","right_elbow_angle","left_shoulder_angle","right_shoulder_angle",
            "left_knee_angle","right_knee_angle","angle_for_half_moon1","angle_for_half_moon2",
