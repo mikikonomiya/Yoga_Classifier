@@ -8,6 +8,7 @@ import os
 import warnings
 warnings.filterwarnings ("ignore", category=UserWarning, module="sklearn")
 
+current_dir = os.path.dirname(__file__)
 def calculateAngle(p1, p2, p3):
     (x1, y1, z1 )= p1
     (x2, y2, z2) = p2
@@ -179,8 +180,8 @@ def compare_angles(user_angles, ideal_angles, threshold_good, threshold_warn):
 
 
 def load_emoji(filename, size):
-    path = os.path.join("/Users/simaypay/Desktop/Yoga_Classifier-main/feedback_images", filename)
-    emoji = cv2.imread(path, cv2.IMREAD_UNCHANGED)  
+    
+    emoji = cv2.imread(filename, cv2.IMREAD_UNCHANGED)  
     
     if emoji is None:
         raise FileNotFoundError(f"Could not load {filename}")
@@ -224,9 +225,11 @@ def score_calculation(feedback_list, pose):
     return overall_score
 
 
-check_img = load_emoji("/Users/simaypay/Desktop/Yoga_Classifier-main/feedback_images/check.png", size=(24,24)) # Load all 3 emojis
-warn_img = load_emoji("/Users/simaypay/Desktop/Yoga_Classifier-main/feedback_images/cross.png", size=(24,24))
-cross_img = load_emoji("/Users/simaypay/Desktop/Yoga_Classifier-main/feedback_images/warning.png", size=(24,24))
+
+
+check_img = load_emoji(os.path.join(current_dir, "feedback_images","check.png"), size=(24, 24))
+warn_img = load_emoji(os.path.join(current_dir, "feedback_images","cross.png"), size=(24, 24))
+cross_img = load_emoji(os.path.join(current_dir, "feedback_images","warning.png"), size=(24, 24))
 
 
 
@@ -326,9 +329,9 @@ while cam.isOpened():
                     overlay_emoji(img_copy, cross_img, x, y,35)
                 
             overall_score = score_calculation(last_feedback_list, last_prediction)
-            imgpath=f"/Users/simaypay/Desktop/Yoga_Classifier-main/feedback_images/{last_prediction}_resized.png"
+            imgpath=f"{last_prediction}_resized.png"
             
-            pic= load_emoji(imgpath,(400,400) ) # Load all 3 emojis
+            pic= load_emoji(os.path.join(current_dir,"feedback_images", imgpath),(400,400)) # Load all 3 emojis
             overlay_emoji(img_copy,pic,2000,10,400)
 
 
@@ -337,9 +340,9 @@ while cam.isOpened():
             if overall_score >= 85:
                 last_prediction_real= last_prediction_real.upper()
                 cv2.putText(img_copy, f"PERFECT {last_prediction_real}!", (15, 70), cv2.FONT_HERSHEY_TRIPLEX, 2, (95, 191, 0), 3)
-            elif overall_score >= 70:
+            elif overall_score >= 75:
                 cv2.putText(img_copy, f"Nice {last_prediction_real}!", (15, 70), cv2.FONT_HERSHEY_TRIPLEX, 2, (247, 204, 30), 3)
-            elif overall_score <70:
+            elif overall_score <75:
                 cv2.putText(img_copy, f"You are doing the {last_prediction_real}", (15, 70), cv2.FONT_HERSHEY_TRIPLEX, 2, (127,0,4), 3)
             if overall_score<85:
                 cv2.putText(img_copy, "Try fixing your ", (15,1050),cv2.FONT_HERSHEY_TRIPLEX, 1.5, (200,101,247), 3)
