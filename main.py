@@ -333,15 +333,15 @@ while cam.isOpened():
 
 
             
-            cv2.putText(img_copy, f"Score: {overall_score}%", (15, 100), cv2.FONT_HERSHEY_TRIPLEX, 1.2, (255, 86, 170), 3)
+            cv2.putText(img_copy, f"Score: {overall_score}%", (15, 120), cv2.FONT_HERSHEY_TRIPLEX, 1.2, (255, 86, 170), 3)
             if overall_score >= 85:
                 last_prediction_real= last_prediction_real.upper()
-                cv2.putText(img_copy, f"PERFECT {last_prediction_real}!", (15, 50), cv2.FONT_HERSHEY_TRIPLEX, 2, (95, 191, 0), 3)
+                cv2.putText(img_copy, f"PERFECT {last_prediction_real}!", (15, 70), cv2.FONT_HERSHEY_TRIPLEX, 2, (95, 191, 0), 3)
             elif overall_score >= 70:
-                cv2.putText(img_copy, f"Nice {last_prediction_real}!", (15, 50), cv2.FONT_HERSHEY_TRIPLEX, 2, (255, 127, 0), 3)
+                cv2.putText(img_copy, f"Nice {last_prediction_real}!", (15, 70), cv2.FONT_HERSHEY_TRIPLEX, 2, (255, 127, 0), 3)
             elif overall_score <70:
-                cv2.putText(img_copy, f"You are doing the {last_prediction_real}", (15, 50), cv2.FONT_HERSHEY_TRIPLEX, 1.7, (127,0,4), 3)
-                cv2.putText(img_copy, "Try fixing your ", (15,1070),cv2.FONT_HERSHEY_TRIPLEX, 1.5, (249,139,249), 2)
+                cv2.putText(img_copy, f"You are doing the {last_prediction_real}", (15, 70), cv2.FONT_HERSHEY_TRIPLEX, 2, (127,0,4), 3)
+                cv2.putText(img_copy, "Try fixing your ", (15,1050),cv2.FONT_HERSHEY_TRIPLEX, 1.5, (249,139,249), 2)
 
                 (text_width, text_height), baseline = cv2.getTextSize("Try fixing your ", cv2.FONT_HERSHEY_TRIPLEX, 1.5, 2)
                 
@@ -354,7 +354,7 @@ while cam.isOpened():
                             txt+=", "
                 txt=txt[:-2]
                 txt+="."
-                cv2.putText(img_copy, txt, (15+ text_width, 1070), cv2.FONT_HERSHEY_TRIPLEX, 1.5, (249,139,249), 2)
+                cv2.putText(img_copy, txt, (15+ text_width, 1050), cv2.FONT_HERSHEY_TRIPLEX, 1.5, (249,139,249), 2)
     cv2.imshow("Yoga Pose Feedback", img_copy)
     
     if cv2.waitKey(1) == ord('q'):
