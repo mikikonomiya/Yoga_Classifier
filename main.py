@@ -337,9 +337,9 @@ while cam.isOpened():
             if overall_score >= 85:
                 last_prediction_real= last_prediction_real.upper()
                 cv2.putText(img_copy, f"PERFECT {last_prediction_real}!", (15, 70), cv2.FONT_HERSHEY_TRIPLEX, 2, (95, 191, 0), 3)
-            elif overall_score >= 75:
+            elif overall_score >= 70:
                 cv2.putText(img_copy, f"Nice {last_prediction_real}!", (15, 70), cv2.FONT_HERSHEY_TRIPLEX, 2, (247, 204, 30), 3)
-            elif overall_score <75:
+            elif overall_score <70:
                 cv2.putText(img_copy, f"You are doing the {last_prediction_real}", (15, 70), cv2.FONT_HERSHEY_TRIPLEX, 2, (127,0,4), 3)
             if overall_score<85:
                 cv2.putText(img_copy, "Try fixing your ", (15,1050),cv2.FONT_HERSHEY_TRIPLEX, 1.5, (200,101,247), 3)
