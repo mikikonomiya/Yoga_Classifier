@@ -3,8 +3,8 @@ import cv2
 import mediapipe as mp
 import pandas as pd
 import os
+current_dir = os.path.dirname(__file__)
 
-# Initialize mediapipe pose class and drawing utils
 mp_pose = mp.solutions.pose
 pose = mp_pose.Pose(static_image_mode=True)
 
@@ -76,7 +76,7 @@ def detect_pose(image, pose):
     return None
 
 # Folder containing images
-path = '/Users/simaypay/Desktop/Yoga_Classifier-main/TRAIN'
+path = os.path.join(current_dir,"TRAIN")
 
 columns = ["Label","left_elbow_angle","right_elbow_angle","left_shoulder_angle","right_shoulder_angle",
            "left_knee_angle","right_knee_angle","angle_for_half_moon1","angle_for_half_moon2",
@@ -114,4 +114,6 @@ dataframe = pd.DataFrame(table, columns=columns)
 dataframe.to_csv('dataset_images.csv', index=False)
 pose.close()
 print(dataframe.head())
+
+
 
